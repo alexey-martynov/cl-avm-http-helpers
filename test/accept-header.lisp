@@ -39,3 +39,6 @@
 (test type-range-without-qvalue
   (is (string= "text/plain" (select-mime-type "*/*")))
   (is (string= "image/png" (select-mime-type "image/png,*/*"))))
+
+(test rfc-2616-data
+  (is (string= "text/html" (select-mime-type "text/*, text/html, text/html;level=1, */*"))))
