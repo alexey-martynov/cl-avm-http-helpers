@@ -91,18 +91,3 @@
              ,(when on-unhandled
                `(t ,@on-unhandled))
              )))))
-
-(defun sample-handlers (header)
-  (handle-mime-types (header)
-                     ("text/plain"
-                      (format t "Plain Text~%"))
-                     ("text/jpeg"
-                      (format t "JPEG image~%"))
-                     ("image/png"
-                      (format t "PNG Image~%"))
-                     ("text/html"
-                      (format t "HTML~%"))
-                     (otherwise
-                      (format t "Not matched~%"))
-                     )
-  )
