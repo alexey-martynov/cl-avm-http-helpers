@@ -14,14 +14,18 @@
                         ((>= start end) (if reverse result (nreverse result)))
                       (push (trim (subseq type start delim)) result)
                       (setf start (min end (1+ delim))))))
-        (list mime-type params)))))
+        (list mime-type (mapcar #'(lambda (item)
+                                       (let ((delim (position-or-end #\= item 0 (length item))))
+                                         (cons (trim (subseq item 0 delim))
+                                               (trim (subseq item (+ delim 1))))))
+                                   params))))))
 
 (defun mimetype= (lhs rhs)
   "Compare two parsed MIME type strings for equality.
 The MIME type string should be parsed as the following list:
 '((type . subtype) (parameters))'. Pattern (*) substitution is performed but
 parameters are not compared.
-Second return value shows\"stength\" of equality:
+Second return value shows\"strength\" of equality:
 0 - matched to */*
 1 - matched to type/*
 2 - exact match"

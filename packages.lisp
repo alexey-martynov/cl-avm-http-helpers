@@ -4,4 +4,4 @@
   (:export #:parse-mime-type
            #:mimetype=
            #:parse-accept-header
-           #:handle-mime-types))
+           #:dispatch-mime-type))

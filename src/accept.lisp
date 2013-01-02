@@ -1,5 +1,11 @@
 (in-package :cl-avm-http-helpers)
 
+(defstruct mime-paramset params (qvalue 1.0 :type single-float))
+
+(defstruct mime-subtype name params)
+
+(defstruct mime-type name subtypes)
+
 (defun parse-accept-header (header)
   (let ((len (length header)))
     (do ((start 0 (min len (1+ delim)))
@@ -7,87 +13,81 @@
          result)
         ((>= start len) result)
       (let* ((mime-type (parse-mime-type header :start start :end delim :reverse t))
-             (qparam (member-if #'(lambda (str)
-                                    (let ((pos (position #\= str)))
-                                      (and pos (string= "q" (trim (subseq str 0 pos))))))
-                                (second mime-type)))
+             (qparam (member "q" (second mime-type) :key #'car :test #'string-equal))
+             (params (sort (if qparam (cdr qparam) (second mime-type))
+                           #'string<
+                           :key #'car))
              (q 1.0))
         (when qparam
-          (let ((pos (position #\= (car qparam))))
-            (setf q (read-from-string (subseq (car qparam) (1+ pos)))
-                  (second mime-type) (nreverse (cdr qparam))))
+          (setf q (read-from-string (cdar qparam)))
           (unless (typep q 'single-float)
             (error "Invalid quality value")))
-        (if-let (item (member (car (first mime-type)) result :key #'car :test #'string-equal))
-          (if-let (subitem (member (cdr (first mime-type)) (cdar item) :key #'car :test #'string-equal))
-            (setf (cdar subitem) (max (cdar subitem) q))
-            (push (cons (cdr (first mime-type)) q) (cdar item)))
-          (push `(,(car (first mime-type)) (,(cdr (first mime-type)) . ,q)) result))))))
+        (if-let (item (member (car (first mime-type)) result :key #'mime-type-name :test #'string-equal))
+          (if-let (subitem (member (cdr (first mime-type)) (mime-type-subtypes (first item)) :key #'mime-subtype-name :test #'string-equal))
+            (if-let (param-item (member params (mime-subtype-params (first subitem)) :key #'mime-paramset-params :test #'equal))
+              (setf (mime-paramset-qvalue (first param-item)) (max (mime-paramset-qvalue (first param-item)) q))
+              (push (make-mime-paramset :params params :qvalue q) (mime-subtype-params (first subitem))))
+            (push (make-mime-subtype :name (cdr (first mime-type))
+                                     :params (list (make-mime-paramset :params params
+                                                                       :qvalue q)))
+                  (mime-type-subtypes (first item))))
+          (push (make-mime-type :name (car (first mime-type))
+                                :subtypes (list (make-mime-subtype :name (cdr (first mime-type))
+                                                                   :params (list (make-mime-paramset :params params
+                                                                                                     :qvalue q)))))
+                result))))))
 
-(defun find-matched-type (type-cons header)
-  (let ((type (car type-cons))
-        (subtype (cdr type-cons))
-        strict-match
-        half-pattern-match
-        pattern-match)
-    (dolist (target header)
-      (let ((target-type (car target)))
-        (when (or (string= "*" target-type) (string-equal target-type type))
-          (dolist (subtarget (cdr target))
-            (let ((subtarget-type (car subtarget)))
-              (when (or (string= "*" subtarget-type) (string-equal subtarget-type subtype))
-                (cond
-                  ((string= "*" target-type)
-                   (setf pattern-match (cdr subtarget)))
-                  ((string= "*" subtarget-type)
-                   (setf half-pattern-match (cdr subtarget)))
-                  (t
-                   (setf strict-match (cdr subtarget))))))))))
-    (values strict-match half-pattern-match pattern-match)))
+(defun find-qvalue (type subtype params header)
+  (when-let (matched-type (find type header :key #'mime-type-name :test #'string-equal))
+    (when-let (matched-subtype (find subtype (mime-type-subtypes matched-type) :key #'mime-subtype-name :test #'string-equal))
+      (when-let (matched-params (find params (mime-subtype-params matched-subtype) :key #'mime-paramset-params :test #'equal))
+        (mime-paramset-qvalue matched-params)))))
 
-(defmacro handle-mime-types ((header) &body body)
-  (with-gensyms (parsed-header
-                 handled-types
-                 strict half-pattern pattern
-                 strict-q half-pattern-q pattern-q
-                 item
-                 matched-strict matched-half-pattern matched-pattern)
-    (let* (on-unhandled
-           (handlers (mapcar #'(lambda (item)
-                                 (if (eq 'otherwise (car item))
-                                     (progn
-                                       (setf on-unhandled (cdr item))
-                                       nil)
-                                     (let ((sym (gensym "mth")))
-                                       `(,(car item) ,sym ,(cdr item)))))
-                            body)))
-      `(let ((,parsed-header (parse-accept-header ,header))
-             (,handled-types '(,@(mapcar #'(lambda (item)
-                                             (when item
-                                               (cons (parse-mime-type (first item)) (second item))))
-                                         handlers)))
-             ,strict ,half-pattern ,pattern
-             (,strict-q -1.0)
-             (,half-pattern-q -1.0)
-             (,pattern-q -1.0))
-         (dolist (,item ,handled-types)
-           (when ,item
-             (multiple-value-bind (,matched-strict ,matched-half-pattern ,matched-pattern) (find-matched-type (caar ,item) ,parsed-header)
-               (when (or ,matched-strict ,matched-half-pattern ,matched-pattern)
-                 (when (and ,matched-strict (> ,matched-strict ,strict-q))
-                   (setf ,strict-q ,matched-strict
-                         ,strict (cdr ,item)))
-                 (when (and ,matched-half-pattern (> ,matched-half-pattern ,half-pattern-q))
-                   (setf ,half-pattern-q ,matched-half-pattern
-                         ,half-pattern (cdr ,item)))
-                 (when (and ,matched-pattern (> ,matched-pattern ,pattern-q))
-                   (setf ,pattern-q ,matched-pattern
-                         ,pattern (cdr ,item)))))))
-           ;; TODO: Add context
-           (case (or ,strict ,half-pattern ,pattern)
+(defun find-qvalue* (type subtype params header)
+  (if-let (q (find-qvalue type subtype params header))
+    q
+    (find-qvalue type subtype nil header)))
+
+(defmacro dispatch-mime-type (header &body body)
+  (let* (on-unhandled
+         (handlers (nreverse (reduce #'(lambda (result item)
+                                         (if (eq 'otherwise (car item))
+                                             (progn
+                                               (setf on-unhandled (cdr item))
+                                               result)
+                                             (let ((type (parse-mime-type (car item))))
+                                               (when (or (string= "*" (car (first type)))
+                                                         (string= "*" (cdr (first type))))
+                                                 (error "MIME type \"~A\" contains pattern which is forbidden in cases." (car item)))
+                                               (when (find "q" (second type) :key #'car :test #'string=)
+                                       (error "MIME type \"~A\" parameter contains q-value which is forbidden in cases." (car item)))
+                                               (cons (list type (gensym) (cdr item)) result))))
+                                     body
+                                     :initial-value '()))))
+    (with-gensyms (type-handlers parsed-header handler)
+      `(let ((,type-handlers ',(mapcar #'(lambda (item)
+                                           `(,(first item) ,(second item)))
+                                       handlers))
+             (,parsed-header (parse-accept-header ,header)))
+         (let ((,handler (reduce (named-lambda find-matched-type! (result item)
+                                     (let* ((current-q (car result))
+                                            (type (car (first (first item))))
+                                            (subtype (cdr (first (first item))))
+                                            (params (sort (second (first item))
+                                                          #'string<
+                                                          :key #'car)))
+                                       (let ((q (or (find-qvalue* type subtype params ,parsed-header)
+                                                    (find-qvalue* type "*" params ,parsed-header)
+                                                    (find-qvalue* "*" "*" params ,parsed-header))))
+                                         (if (and q (< current-q q))
+                                             (cons q (second item))
+                                             result))))
+                                 ,type-handlers
+                                 :initial-value '(0.0 . nil))))
+           (case (cdr ,handler)
              ,@(mapcar #'(lambda (item)
                            `(,(second item) ,@(third item)))
                        handlers)
-             ,(when on-unhandled
-               `(t ,@on-unhandled))
-             )))))
+             ,@(when on-unhandled
+                   `((t ,@on-unhandled)))
+             ))))))
