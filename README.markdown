@@ -1,4 +1,5 @@
-"cl-avm-http-helpers"
+cl-avm-http-helpers
+===================
 
 This project contains different utilities to handle some tricky aspects
 of the HTTP protocol.
