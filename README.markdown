@@ -46,5 +46,5 @@ q-value from media range with parameters. For example:
         (otherwise
          nil))
 
-"text/html;level=2" will be selected beacuse of inheritance of q-value from "text/html"
+"text/html;level=2" will be selected because of inheritance of q-value from "text/html"
 (0.8).
