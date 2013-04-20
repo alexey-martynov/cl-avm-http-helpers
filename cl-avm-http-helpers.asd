@@ -1,7 +1,7 @@
 (defsystem cl-avm-http-helpers
   :name "cl-avm-http-helpers"
   :author "Alexey Martynov"
-  :depends-on (#:alexandria)
+  :depends-on (#:alexandria #:hunchentoot #:local-time)
   :in-order-to ((test-op (test-op cl-avm-http-helpers-tests)))
   :components ((:module "http"
                         :components ((:file "packages")
@@ -9,7 +9,8 @@
                                               :depends-on ("packages")
                                               :components ((:file "tools")
                                                            (:file "mime" :depends-on ("tools"))
-                                                           (:file "accept" :depends-on ("tools" "mime"))))))))
+                                                           (:file "accept" :depends-on ("tools" "mime"))
+                                                           (:file "conditionals")))))))
 
 (defsystem cl-avm-http-helpers-tests
     :name "cl-avm-http-helpers-tests"
@@ -18,4 +19,5 @@
     :components ((:module "test"
                           :pathname "http/test"
                           :components ((:file "runner")
-                                       (:file "accept-header" :depends-on ("runner"))))))
+                                       (:file "accept-header" :depends-on ("runner"))
+                                       (:file "conditionals" :depends-on ("runner"))))))
