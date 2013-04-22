@@ -1,7 +1,7 @@
 (defsystem cl-avm-http-helpers
   :name "cl-avm-http-helpers"
   :author "Alexey Martynov"
-  :depends-on (#:alexandria #:hunchentoot #:local-time)
+  :depends-on (#:alexandria #:hunchentoot)
   :in-order-to ((test-op (test-op cl-avm-http-helpers-tests)))
   :components ((:module "http"
                         :components ((:file "packages")

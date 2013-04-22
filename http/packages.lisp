@@ -1,8 +1,7 @@
 (defpackage :cl-avm-http-helpers
   (:use :cl
         :alexandria
-        :hunchentoot
-        :local-time)
+        :hunchentoot)
   (:export #:parse-mime-type
            #:mimetype=
            #:parse-accept-header
