@@ -5,7 +5,7 @@
 (in-suite accept-header)
 
 (defun select-mime-type (header)
-  (dispatch-mime-type header
+  (cl-avm-http-helpers::dispatch-mime-type** header
     ("text/plain"
      "text/plain")
     ("text/jpeg"
@@ -18,7 +18,7 @@
      nil)))
 
 (defun select-mime-type* (header)
-  (dispatch-mime-type header
+  (cl-avm-http-helpers::dispatch-mime-type** header
     ("text/plain"
      "text/plain")
     ("text/html;level=2"

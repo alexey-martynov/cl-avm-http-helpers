@@ -13,6 +13,7 @@
            #:parse-accept-header
            ;; Handle Accept header
            #:dispatch-mime-type
+           #:dispatch-mime-type*
 
            ;; Handle conditionals
            #:when-modified

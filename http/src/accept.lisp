@@ -48,7 +48,7 @@
     q
     (find-qvalue type subtype nil header)))
 
-(defmacro dispatch-mime-type (header &body body)
+(defmacro dispatch-mime-type** (header &body body)
   (let* (on-unhandled
          (handlers (nreverse (reduce #'(lambda (result item)
                                          (if (eq 'otherwise (car item))
@@ -91,3 +91,13 @@
              ,@(when on-unhandled
                    `((t ,@on-unhandled)))
              ))))))
+
+(defmacro dispatch-mime-type* (implementation &body body)
+  (once-only ((impl implementation))
+    `(dispatch-mime-type** (http-header :ACCEPT ,impl)
+       (setf (http-header :VARY "Accept" ,impl)
+       ,@body))))
+
+(defmacro dispatch-mime-type (&body body)
+  `(dispatch-mime-type* (http-header :ACCEPT (detect-http-implementation))
+     ,@body))

@@ -22,7 +22,7 @@ conditional execution with `Last-Modified`/`If-Modified-Since`/`If-Unmodified-Si
 
 A typical usage looks like:
 
-    (dispatch-mime-type header
+    (dispatch-mime-type
       ("text/html"
         ; HTML generator
        )
@@ -46,7 +46,9 @@ If the header doesn't contain media range with parameters from case label _but_
 media range _without_ parameters matches, media range from case label will get
 q-value from media range with parameters. For example:
 
-    (dispatch-mime-type "text/html;level=0.7,text/html;q=0.8,*/*;q=0.1"
+    When `Accept` header contains "text/html;level=0.7,text/html;q=0.8,*/*;q=0.1"
+
+    (dispatch-mime-type
       ("text/plain"
        "text/plain")
       ("text/html;level=2"
@@ -61,13 +63,16 @@ q-value from media range with parameters. For example:
 "text/html;level=2" will be selected because of inheritance of q-value from "text/html"
 (0.8).
 
-This facility is completely unbound with Hunchentoot. So, client needs to provide value of
-the `Accept` header.
+There are 2 versions of the macros is available. `dispatch-mime-type` automatically selects
+HTTP server implementation. `dispatch-mime-type*` accepts additional argument with the HTTP
+implementation identifier.
 
 If it is possible for clients to receive different MIME types with the (for example, image
 as PNG to display initial picture or image as BASE64 for Ajax/Web 2.0 application to update
 it), the header `Vary` *must* be set to at least `Accept`. This informs all caches that 
-content depends on the supplied `Accept` header.
+content depends on the supplied `Accept` header. The macros perform this task automatically.
+But if handling code requires additional data in the `Vary` header it should set it manually 
+with `Accept` inside.
 
 ### Conditional Processing
 
