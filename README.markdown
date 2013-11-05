@@ -7,10 +7,18 @@ of the HTTP protocol.
 Also it contains helper to publish templates compiled via 
 [cl-closure-template](https://github.com/archimag/cl-closure-template).
 
+> IMPORTANT NOTE:
+> Some library parts are accidentally bound to the [Hunchentoot](http://weitz.de/hunchentoot/).
+> This should be fixed via providing some generic mechanism or Hunchentoot 
+> availability detection.
+
 HTTP Headers
 ------------
 
-At this time library provides handling of the `Accept` header.
+At this time library provides handling of the `Accept` header and 
+conditional execution with `Last-Modified`/`If-Modified-Since`/`If-Unmodified-Since`.
+
+### `Accept` Header
 
 A typical usage looks like:
 
@@ -53,11 +61,48 @@ q-value from media range with parameters. For example:
 "text/html;level=2" will be selected because of inheritance of q-value from "text/html"
 (0.8).
 
+This facility is completely unbound with Hunchentoot. So, client needs to provide value of
+the `Accept` header.
+
+If it is possible for clients to receive different MIME types with the (for example, image
+as PNG to display initial picture or image as BASE64 for Ajax/Web 2.0 application to update
+it), the header `Vary` *must* be set to at least `Accept`. This informs all caches that 
+content depends on the supplied `Accept` header.
+
+### Conditional Processing
+
+HTTP 1.1 offers mechanism to control caching. In the simplest version it consists of 
+`Last-Modified` response header and `If-Modified-Since`/`If-Unmodified-Since` request 
+headers.
+
+The library provides 2 pairs of macros: "when-modified"/"when-modified*" and 
+"unless-modified"/"unless-modified*".
+
+The macros "when-modified*" and "unless-modified*" are generic ones. They receive
+resource time stamp and implementation identifier.
+
+The macros "when-modified" and "unless-modified" are designed for regular usage. They
+receive resource time stamp as Common Lisp universal time. The body of the macro invocation
+is executed if comparison of the time stamp to the header's value is succeeded. The 
+implementation is auto-detected. The first one is from `*default-http-implementation*` variable.
+If it is NIL the `*features*` is checked for Hunchentoot.
+
+If the body of the macro is executed, the header `Last-Modified` is set to the representation
+of the provided time stamp.
+
+For example:
+
+    (when-modified (file-write-date path)
+      (generate-contents path))
+
 Closure Template Publishing
 ---------------------------
 
 Templates are published via [RESTAS](https://github.com/archimag/restas) after 
 compilation to the [RequireJS](http://requirejs.org/) module format.
+
+> IMPORTANT NOTE:
+> This library is bound to the Hunchentoot server implementation because of RESTAS usage.
 
 Component is implemented in `cl-avm-requirejs-publisher` system and can be used as module.
 

@@ -1,8 +1,14 @@
+(defpackage :cl-avm-http-helpers.server
+  (:use :cl)
+  (:export #:http-header
+           #:http-status))
+
 (defpackage :cl-avm-http-helpers
   (:use :cl
         :alexandria
-        :hunchentoot)
-  (:export #:parse-mime-type
+        :cl-avm-http-helpers.server)
+  (:export #:*default-http-implementation*
+           #:parse-mime-type
            #:mimetype=
            #:parse-accept-header
            ;; Handle Accept header

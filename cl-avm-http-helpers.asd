@@ -1,13 +1,14 @@
 (defsystem cl-avm-http-helpers
   :name "cl-avm-http-helpers"
   :author "Alexey Martynov"
-  :depends-on (#:alexandria #:hunchentoot)
+  :depends-on (#:alexandria)
   :in-order-to ((test-op (test-op cl-avm-http-helpers-tests)))
   :components ((:module "http"
                         :components ((:file "packages")
                                      (:module "src"
                                               :depends-on ("packages")
-                                              :components ((:file "tools")
+                                              :components ((:file "server")
+                                                           (:file "tools")
                                                            (:file "mime" :depends-on ("tools"))
                                                            (:file "accept" :depends-on ("tools" "mime"))
                                                            (:file "conditionals")))))))

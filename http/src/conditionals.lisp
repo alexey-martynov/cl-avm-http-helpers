@@ -42,27 +42,28 @@
 ;         (parse-rfc850-timestamp str)))
 )      -2))
 
-(defmacro when-modified* (date header &body body)
-  `(let ((dt ,date)
-         (hdr ,header))
-     (if (< (parse-http-timestamp hdr) dt)
+(defmacro when-modified* (date implementation &body body)
+  `(once-only ((dt ,date)
+               (impl ,implementation))
+     (if (< (parse-http-timestamp (http-header :IF-MODIFIED-SINCE impl)) dt)
          (progn
-           (setf (hunchentoot:header-out :LAST-MODIFIED) (rfc-1123-date dt))
+           (setf (http-header :LAST-MODIFIED implementation) (rfc-1123-date dt))
            ,@body)
-         hunchentoot:+http-not-modified+)))
+         (http-status 404 implementation))))
 
 (defmacro when-modified (date &body body)
-  `(when-modified* ,date (hunchentoot:header-in* :IF-MODIFIED-SINCE)
+  `(when-modified* ,date (detect-http-implementation)
     ,@body))
 
-(defmacro unless-modified* (date header &body body)
-  `(let ((dt ,date)
-         (hdr ,header))
-     (if (<= dt (parse-http-timestamp hdr))
+(defmacro unless-modified* (date implementation &body body)
+  `(once-only ((dt ,date)
+               (impl ,implementation))
+     (if (<= dt (parse-http-timestamp (http-header :IF-UNMODIFIED-SINCE impl)))
          (progn
            ,@body)
-         hunchentoot:+http-precondition-failed+)))
+       ; +http-precondition-failed+
+       (http-status 412 implementation))))
 
 (defmacro unless-modified (date &body body)
-  `(unless-modified* ,date (hunchentoot:header-in* :IF-UNMODIFIED-SINCE)
+  `(unless-modified* ,date (detect-http-implementation)
     ,@body))
