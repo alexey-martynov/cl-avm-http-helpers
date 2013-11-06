@@ -38,14 +38,14 @@
       (case (elt str 3)
         (#\,
          (parse-rfc1123-timestamp str))
-;        (otherwise
-;         (parse-rfc850-timestamp str)))
-)      -2))
+                                        ;        (otherwise
+                                        ;         (parse-rfc850-timestamp str)))
+        )      -2))
 
 (defmacro when-modified* (date implementation &body body)
   (once-only ((dt date)
               (impl implementation))
-     `(if (< (parse-http-timestamp (http-header :IF-MODIFIED-SINCE ,impl)) ,dt)
+    `(if (< (parse-http-timestamp (http-header :IF-MODIFIED-SINCE ,impl)) ,dt)
          (progn
            (setf (http-header :LAST-MODIFIED ,impl) (format-http-date ,dt))
            ,@body)
@@ -54,17 +54,17 @@
 
 (defmacro when-modified (date &body body)
   `(when-modified* ,date (detect-http-implementation)
-    ,@body))
+     ,@body))
 
 (defmacro unless-modified* (date implementation &body body)
   (once-only ((dt date)
-               (impl implementation))
-     `(if (<= ,dt (parse-http-timestamp (http-header :IF-UNMODIFIED-SINCE ,impl)))
+              (impl implementation))
+    `(if (<= ,dt (parse-http-timestamp (http-header :IF-UNMODIFIED-SINCE ,impl)))
          (progn
            ,@body)
-       ; +http-precondition-failed+
-       (http-status 412 ,impl))))
+                                        ; +http-precondition-failed+
+         (http-status 412 ,impl))))
 
 (defmacro unless-modified (date &body body)
   `(unless-modified* ,date (detect-http-implementation)
-    ,@body))
+     ,@body))

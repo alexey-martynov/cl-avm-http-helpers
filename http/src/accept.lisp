@@ -60,7 +60,7 @@
                                                          (string= "*" (cdr (first type))))
                                                  (error "MIME type \"~A\" contains pattern which is forbidden in cases." (car item)))
                                                (when (find "q" (second type) :key #'car :test #'string=)
-                                       (error "MIME type \"~A\" parameter contains q-value which is forbidden in cases." (car item)))
+                                                 (error "MIME type \"~A\" parameter contains q-value which is forbidden in cases." (car item)))
                                                (cons (list type (gensym) (cdr item)) result))))
                                      body
                                      :initial-value '()))))
@@ -70,18 +70,18 @@
                                        handlers))
              (,parsed-header (parse-accept-header ,header)))
          (let ((,handler (reduce (named-lambda find-matched-type! (result item)
-                                     (let* ((current-q (car result))
-                                            (type (car (first (first item))))
-                                            (subtype (cdr (first (first item))))
-                                            (params (sort (second (first item))
-                                                          #'string<
-                                                          :key #'car)))
-                                       (let ((q (or (find-qvalue* type subtype params ,parsed-header)
-                                                    (find-qvalue* type "*" params ,parsed-header)
-                                                    (find-qvalue* "*" "*" params ,parsed-header))))
-                                         (if (and q (< current-q q))
-                                             (cons q (second item))
-                                             result))))
+                                   (let* ((current-q (car result))
+                                          (type (car (first (first item))))
+                                          (subtype (cdr (first (first item))))
+                                          (params (sort (second (first item))
+                                                        #'string<
+                                                        :key #'car)))
+                                     (let ((q (or (find-qvalue* type subtype params ,parsed-header)
+                                                  (find-qvalue* type "*" params ,parsed-header)
+                                                  (find-qvalue* "*" "*" params ,parsed-header))))
+                                       (if (and q (< current-q q))
+                                           (cons q (second item))
+                                           result))))
                                  ,type-handlers
                                  :initial-value '(0.0 . nil))))
            (case (cdr ,handler)
@@ -89,7 +89,7 @@
                            `(,(second item) ,@(third item)))
                        handlers)
              ,@(when on-unhandled
-                   `((t ,@on-unhandled)))
+                     `((t ,@on-unhandled)))
              ))))))
 
 (defmacro dispatch-mime-type* (implementation &body body)
@@ -97,7 +97,7 @@
     `(progn
        (setf (http-header :VARY ,impl) "Accept")
        (dispatch-mime-type** (http-header :ACCEPT ,impl)
-       ,@body))))
+         ,@body))))
 
 (defmacro dispatch-mime-type (&body body)
   `(dispatch-mime-type* (detect-http-implementation)
