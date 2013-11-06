@@ -19,5 +19,6 @@
 (restas:define-route route ("*path" :method :GET)
   (:content-type "text/javascript")
   (if-let (source-file (make-source-name (pathname (format nil "~{~A~^/~}" path))))
-    (closure-template:compile-template :requirejs-backend source-file)
+    (when-modified (file-write-date source-file)
+      (closure-template:compile-template :requirejs-backend source-file))
     hunchentoot:+http-not-found+))

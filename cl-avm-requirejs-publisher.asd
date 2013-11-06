@@ -1,7 +1,7 @@
 (defsystem cl-avm-requirejs-publisher
     :name "cl-avm-requirejs-publisher"
     :author "Alexey Martynov"
-    :depends-on (#:restas #:closure-template #:alexandria)
+    :depends-on (#:restas #:closure-template #:alexandria #:cl-avm-http-helpers)
     :components ((:module "requirejs"
                           :components ((:file "packages")
                                        (:file "publisher" :depends-on ("packages"))))))
