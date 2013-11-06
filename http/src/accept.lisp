@@ -94,10 +94,11 @@
 
 (defmacro dispatch-mime-type* (implementation &body body)
   (once-only ((impl implementation))
-    `(dispatch-mime-type** (http-header :ACCEPT ,impl)
-       (setf (http-header :VARY "Accept" ,impl)
+    `(progn
+       (setf (http-header :VARY ,impl) "Accept")
+       (dispatch-mime-type** (http-header :ACCEPT ,impl)
        ,@body))))
 
 (defmacro dispatch-mime-type (&body body)
-  `(dispatch-mime-type* (http-header :ACCEPT (detect-http-implementation))
+  `(dispatch-mime-type* (detect-http-implementation)
      ,@body))

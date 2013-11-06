@@ -6,6 +6,9 @@
   (or *default-http-implementation*
       (find :hunchentoot *features*)))
 
+(defun format-http-date (date)
+  (hunchentoot:rfc-1123-date date))
+
 (defun trim (str)
   (string-trim '(#\Space #\Tab #\Newline #\Linefeed) str))
 

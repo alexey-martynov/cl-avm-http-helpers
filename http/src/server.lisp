@@ -22,7 +22,7 @@ the proper HTTP server implementation value, like HUNCHENTOOT:+HTTP-NOT-FOUND+")
 #+hunchentoot (defmethod http-header (header (implementation (eql :hunchentoot)))
                 (hunchentoot:header-in* header))
 
-#+hunchentoot (defmethod (setf http-header) (header value (implementation (eql :hunchentoot)))
+#+hunchentoot (defmethod (setf http-header) (value header (implementation (eql :hunchentoot)))
                 (setf (hunchentoot:header-out header) value))
 
 #+hunchentoot (defmethod http-status (status (implementation (eql :hunchentoot)))

@@ -43,26 +43,27 @@
 )      -2))
 
 (defmacro when-modified* (date implementation &body body)
-  `(once-only ((dt ,date)
-               (impl ,implementation))
-     (if (< (parse-http-timestamp (http-header :IF-MODIFIED-SINCE impl)) dt)
+  (once-only ((dt date)
+              (impl implementation))
+     `(if (< (parse-http-timestamp (http-header :IF-MODIFIED-SINCE ,impl)) ,dt)
          (progn
-           (setf (http-header :LAST-MODIFIED implementation) (rfc-1123-date dt))
+           (setf (http-header :LAST-MODIFIED ,impl) (format-http-date ,dt))
            ,@body)
-         (http-status 404 implementation))))
+         ;; +http-not-modified+
+         (http-status 304 ,impl))))
 
 (defmacro when-modified (date &body body)
   `(when-modified* ,date (detect-http-implementation)
     ,@body))
 
 (defmacro unless-modified* (date implementation &body body)
-  `(once-only ((dt ,date)
-               (impl ,implementation))
-     (if (<= dt (parse-http-timestamp (http-header :IF-UNMODIFIED-SINCE impl)))
+  (once-only ((dt date)
+               (impl implementation))
+     `(if (<= ,dt (parse-http-timestamp (http-header :IF-UNMODIFIED-SINCE ,impl)))
          (progn
            ,@body)
        ; +http-precondition-failed+
-       (http-status 412 implementation))))
+       (http-status 412 ,impl))))
 
 (defmacro unless-modified (date &body body)
   `(unless-modified* ,date (detect-http-implementation)
