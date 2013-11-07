@@ -5,20 +5,44 @@
 
 (defparameter *extension* "tmpl")
 
-(defun make-source-name (path)
+(defun check-source-file (path)
   (when *source-dir*
     (let ((name (pathname-name path))
           (ext (pathname-type path)))
       (when (string= "js" ext)
-        (let ((path-name (merge-pathnames (make-pathname :directory (pathname-directory path)
+        (let* ((path-name (merge-pathnames (make-pathname :directory (pathname-directory path)
                                                          :name name
                                                          :type *extension*)
-                                          *source-dir*)))
-          (probe-file path-name))))))
+                                          *source-dir*))
+               (result (probe-file path-name)))
+          (when result
+            (values result (file-write-date result))))))))
+
+(defun update-cached-file (relative-name source timestamp)
+  (let ((cached-file (merge-pathnames relative-name *cache-dir*)))
+    (handler-bind ((error (lambda (e)
+                            hunchentoot:+http-internal-server-error+)))
+      (ensure-directories-exist (directory-namestring cached-file))
+      (if (and (probe-file cached-file) (<= timestamp (file-write-date cached-file)))
+          cached-file
+          (progn
+            (handler-bind ((error (lambda (e)
+                                    (delete-file cached-file)
+                                    hunchentoot:+http-internal-server-error+)))
+              (with-open-file (output cached-file :direction :output :if-exists :supersede)
+                (write-string (closure-template:compile-template :requirejs-backend source) output))
+              cached-file))))))
+
+(defun get-cached-file (relative-name source timestamp)
+  (if *cache-dir*
+      (update-cached-file relative-name source timestamp)
+      (closure-template:compile-template :requirejs-backend source)))
 
 (restas:define-route route ("*path" :method :GET)
   (:content-type "text/javascript")
-  (if-let (source-file (make-source-name (pathname (format nil "~{~A~^/~}" path))))
-    (when-modified (file-write-date source-file)
-      (closure-template:compile-template :requirejs-backend source-file))
-    hunchentoot:+http-not-found+))
+  (let ((relative-name (pathname (format nil "~{~A~^/~}" path))))
+    (multiple-value-bind (source timestamp) (check-source-file relative-name)
+      (if source
+          (when-modified timestamp
+            (get-cached-file relative-name source timestamp))
+          hunchentoot:+http-not-found+))))
