@@ -1,7 +1,8 @@
 (defpackage :cl-avm-http-helpers.server
   (:use :cl)
   (:export #:http-header
-           #:http-status))
+           #:http-status
+           #:http-is-succeeded))
 
 (defpackage :cl-avm-http-helpers
   (:use :cl

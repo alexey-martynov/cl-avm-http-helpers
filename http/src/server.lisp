@@ -19,6 +19,10 @@ VALUE is the value of the header"))
   (:documentation "HTTP-STATUS function converts HTTP status code like 404 to
 the proper HTTP server implementation value, like HUNCHENTOOT:+HTTP-NOT-FOUND+"))
 
+(defgeneric http-is-succeeded (response implementation)
+  (:documentation "HTTP-IS-SUCCEEDED function checks that RESPONSE is succeeded.
+For example, with Hunchentoot it is not integer with value greater or equal to 300"))
+
 #+hunchentoot (defmethod http-header (header (implementation (eql :hunchentoot)))
                 (hunchentoot:header-in* header))
 
@@ -27,3 +31,6 @@ the proper HTTP server implementation value, like HUNCHENTOOT:+HTTP-NOT-FOUND+")
 
 #+hunchentoot (defmethod http-status (status (implementation (eql :hunchentoot)))
                 status)
+
+#+hunchentoot (defmethod http-is-succeeded (response (implementation (eql :hunchentoot)))
+                (not (and (typep response 'integer) (>= response 300))))

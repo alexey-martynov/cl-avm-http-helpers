@@ -45,12 +45,15 @@
 (defmacro when-modified* (date implementation &body body)
   (once-only ((dt date)
               (impl implementation))
-    `(if (< (parse-http-timestamp (http-header :IF-MODIFIED-SINCE ,impl)) ,dt)
-         (progn
-           (setf (http-header :LAST-MODIFIED ,impl) (format-http-date ,dt))
-           ,@body)
+    (with-gensyms (response)
+      `(if (< (parse-http-timestamp (http-header :IF-MODIFIED-SINCE ,impl)) ,dt)
+             (let ((,response (progn
+                                ,@body)))
+               (when (http-is-succeeded ,response ,impl)
+                 (setf (http-header :LAST-MODIFIED ,impl) (format-http-date ,dt)))
+               ,response)
          ;; +http-not-modified+
-         (http-status 304 ,impl))))
+         (http-status 304 ,impl)))))
 
 (defmacro when-modified (date &body body)
   `(when-modified* ,date (detect-http-implementation)
