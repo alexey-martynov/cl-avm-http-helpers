@@ -1,3 +1,9 @@
+(defpackage :cl-avm-http-helpers.http
+  (:use cl)
+  (:export #:+http-not-modified+
+           #:+http-precondition-failed+
+           #:+http-not-acceptable+))
+
 (defpackage :cl-avm-http-helpers.server
   (:use :cl)
   (:export #:http-header
@@ -7,6 +13,7 @@
 (defpackage :cl-avm-http-helpers
   (:use :cl
         :alexandria
+        :cl-avm-http-helpers.http
         :cl-avm-http-helpers.server)
   (:export #:*default-http-implementation*
            #:parse-mime-type

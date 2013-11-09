@@ -7,11 +7,12 @@
                         :components ((:file "packages")
                                      (:module "src"
                                               :depends-on ("packages")
-                                              :components ((:file "server")
+                                              :components ((:file "http")
+                                                           (:file "server")
                                                            (:file "tools")
                                                            (:file "mime" :depends-on ("tools"))
-                                                           (:file "accept" :depends-on ("tools" "mime"))
-                                                           (:file "conditionals")))))))
+                                                           (:file "accept" :depends-on ("tools" "server" "mime"))
+                                                           (:file "conditionals" :depends-on ("server" "http"))))))))
 
 (defsystem cl-avm-http-helpers-tests
     :name "cl-avm-http-helpers-tests"

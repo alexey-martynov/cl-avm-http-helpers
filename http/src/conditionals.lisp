@@ -52,8 +52,7 @@
                (when (http-is-succeeded ,response ,impl)
                  (setf (http-header :LAST-MODIFIED ,impl) (format-http-date ,dt)))
                ,response)
-         ;; +http-not-modified+
-         (http-status 304 ,impl)))))
+         (http-status +http-not-modified+ ,impl)))))
 
 (defmacro when-modified (date &body body)
   `(when-modified* ,date (detect-http-implementation)
@@ -65,8 +64,7 @@
     `(if (<= ,dt (parse-http-timestamp (http-header :IF-UNMODIFIED-SINCE ,impl)))
          (progn
            ,@body)
-                                        ; +http-precondition-failed+
-         (http-status 412 ,impl))))
+         (http-status +http-precondition-failed+ ,impl))))
 
 (defmacro unless-modified (date &body body)
   `(unless-modified* ,date (detect-http-implementation)
