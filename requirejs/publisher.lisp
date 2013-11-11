@@ -24,14 +24,14 @@
                             hunchentoot:+http-internal-server-error+)))
       (ensure-directories-exist (directory-namestring cached-file))
       (if (and (probe-file cached-file) (<= timestamp (file-write-date cached-file)))
-          cached-file
+          (open cached-file :element-type 'unsigned-byte)
           (progn
             (handler-bind ((error (lambda (e)
                                     (delete-file cached-file)
                                     hunchentoot:+http-internal-server-error+)))
               (with-open-file (output cached-file :direction :output :if-exists :supersede)
                 (write-string (closure-template:compile-template :requirejs-backend source) output))
-              cached-file))))))
+              (open cached-file :element-type 'unsigned-byte)))))))
 
 (defun get-cached-file (relative-name source timestamp)
   (if *cache-dir*
