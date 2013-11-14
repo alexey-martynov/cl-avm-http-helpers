@@ -6,12 +6,35 @@
 (defparameter *extension* "tmpl")
 
 (defparameter *cache-lock* nil)
+(defparameter *cache-item-locks* nil)
+(defparameter *cache-item-spare-locks* nil)
+
+(defmacro with-cache-lock ((path) &body body)
+  (with-gensyms (item-lock)
+    (once-only (path)
+      `(let ((,item-lock (with-lock-held (*cache-lock*)
+                           (let ((element (gethash ,path *cache-item-locks*)))
+                             (if element
+                                 (incf (cdr element))
+                                 (let ((lock (if *cache-item-spare-locks*
+                                                 (pop *cache-item-spare-locks*)
+                                               (make-lock "RequireJS cache item lock"))))
+                                   (setf element (cons lock 1))
+                                   (setf (gethash ,path *cache-item-locks*) element)))
+                             element))))
+         (unwind-protect (with-lock-held ((car ,item-lock))
+                           ,@body)
+           (with-lock-held (*cache-lock*)
+             (when (= 0 (decf (cdr ,item-lock)))
+               (push (car ,item-lock) *cache-item-spare-locks*)
+               (remhash ,path *cache-item-locks*))))))))
 
 (defmethod restas:initialize-module-instance :before ((module (eql #.*package*)) context)
   (restas:with-context context
     (when *cache-dir*
       (restas:context-add-variable context '*cache-lock* (make-lock (with-output-to-string (s)
-                                                                      (format s "RequireJS cache lock ~A" *cache-dir*)))))))
+                                                                      (format s "RequireJS cache lock ~A" *cache-dir*))))
+      (restas:context-add-variable context '*cache-item-locks* (make-hash-table :test #'equal)))))
 
 (defun check-source-file (path)
   (when *source-dir*
@@ -32,7 +55,7 @@
                             #+syslog (syslog:format-message :error "reading cached file \"~A\" failed: ~A" cached-file e)
                             #-syslog (declare (ignore e))
                             hunchentoot:+http-internal-server-error+)))
-      (with-lock-held (*cache-lock*)
+      (with-cache-lock (cached-file)
         (ensure-directories-exist (directory-namestring cached-file))
         (if (and (probe-file cached-file) (<= timestamp (file-write-date cached-file)))
             (open cached-file :element-type 'unsigned-byte)
