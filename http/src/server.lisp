@@ -7,7 +7,7 @@ the HTTP protocol request headers.
 IMPLEMENTATION parameter is the symbol which indentifies actual implementation.
 HEADER is the symbol which identifies header, for example, :IF-MODIFIED-SINCE."))
 
-(defgeneric (setf http-header) (header value implementation)
+(defgeneric (setf http-header) (value header implementation)
   (:documentation "(SETF HTTP-HEADER) function provides generic access to
 the HTTP protocol response headers.
 
@@ -22,15 +22,3 @@ the proper HTTP server implementation value, like HUNCHENTOOT:+HTTP-NOT-FOUND+")
 (defgeneric http-is-succeeded (response implementation)
   (:documentation "HTTP-IS-SUCCEEDED function checks that RESPONSE is succeeded.
 For example, with Hunchentoot it is not integer with value greater or equal to 300"))
-
-#+hunchentoot (defmethod http-header (header (implementation (eql :hunchentoot)))
-                (hunchentoot:header-in* header))
-
-#+hunchentoot (defmethod (setf http-header) (value header (implementation (eql :hunchentoot)))
-                (setf (hunchentoot:header-out header) value))
-
-#+hunchentoot (defmethod http-status (status (implementation (eql :hunchentoot)))
-                status)
-
-#+hunchentoot (defmethod http-is-succeeded (response (implementation (eql :hunchentoot)))
-                (not (and (typep response 'integer) (>= response 300))))
