@@ -17,6 +17,7 @@
         :cl-avm-http-helpers.server)
   (:export #:*default-http-implementation*
            #:parse-mime-type
+           #:format-mime-type
            #:mimetype=
            #:parse-accept-header
            ;; Handle Accept header

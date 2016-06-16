@@ -1,6 +1,10 @@
 (in-package :cl-avm-http-helpers)
 
 (defun parse-mime-type (type &key (start 0) end reverse)
+  "Parse MIME type string from TYPE starting at position START and finishing
+at position END. The result will be in form of a list
+((type . subtype) options*)
+where every option is a pair of (name . value)"
   (let ((len (length type)))
     (unless end
       (setf end len))
@@ -19,6 +23,14 @@
                                          (cons (trim (subseq item 0 delim))
                                                (trim (subseq item (+ delim 1))))))
                                    params))))))
+
+(defun format-mime-type (type)
+  "Format result of parsing back to string"
+  (with-output-to-string (result)
+    (format result "~A/~A" (car (first type)) (cdr (first type)))
+    (mapc #'(lambda (item)
+              (format result ";~A=~A" (car item) (cdr item)))
+          (second type))))
 
 (defun mimetype= (lhs rhs)
   "Compare two parsed MIME type strings for equality.
