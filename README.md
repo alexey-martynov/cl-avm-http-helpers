@@ -46,7 +46,7 @@ If the header doesn't contain media range with parameters from case label _but_
 media range _without_ parameters matches, media range from case label will get
 q-value from media range with parameters. For example:
 
-    When `Accept` header contains "text/html;level=0.7,text/html;q=0.8,*/*;q=0.1"
+When `Accept` header contains "text/html;level=0.7,text/html;q=0.8,*/*;q=0.1"
 
     (dispatch-mime-type
       ("text/plain"
@@ -80,13 +80,13 @@ HTTP 1.1 offers mechanism to control caching. In the simplest version it consist
 `Last-Modified` response header and `If-Modified-Since`/`If-Unmodified-Since` request 
 headers.
 
-The library provides 2 pairs of macros: "when-modified"/"when-modified*" and 
-"unless-modified"/"unless-modified*".
+The library provides 2 pairs of macros: `when-modified`/`when-modified*` and 
+`unless-modified`/`unless-modified*` based on timestamps.
 
-The macros "when-modified*" and "unless-modified*" are generic ones. They receive
+The macros `when-modified*` and `unless-modified*` are generic ones. They receive
 resource time stamp and implementation identifier.
 
-The macros "when-modified" and "unless-modified" are designed for regular usage. They
+The macros `when-modified` and `unless-modified` are designed for regular usage. They
 receive resource time stamp as Common Lisp universal time. The body of the macro invocation
 is executed if comparison of the time stamp to the header's value is succeeded. The 
 implementation is auto-detected. The first one is from `*default-http-implementation*` variable.
@@ -99,6 +99,35 @@ For example:
 
     (when-modified (file-write-date path)
       (generate-contents path))
+
+Additional facility provided for ETag based conditions. The macros
+`if-match`/`if-match*` handles conditions in `If-Match` header
+accodirding to section 14.24 of RFC 2616. For example:
+
+    (if-match (etag-value)
+      (generate-response))
+      
+The folliowing cases are possible:
+
+1. `If-Match` and `etag-value` are missing, the handler is
+   evaluated.
+2. `If-Match` and `etag-value` are exists and match, the handler is
+   evaluated.
+3. `If-Match` and `etag-value` are exists and but don't match, the
+   handler is not evaluated and "412 Percondition Failed" is
+   returned.
+4. `If-Match` exists but `etag-value` is missing. This case is handled
+   as "Resource Not Found" and "404 Not Found" returned except for
+   `If-Match` value "*" which is stated in RFC. In this case "412
+   Precondition Failed" is returned. The handler body is not
+   evaluated.
+5. `If-Match` is missing but `etga-value` exists. The handler body is
+   not evaluated and "428 Precondition Required" is returned.
+
+To distinguish cases 1 and 2 inside the handler body additional
+lexical variable is bound during body evaluation. By default it is
+named `etag-matched` but other name can be specified as a second
+parameter after ETag value.
 
 Closure Template Publishing
 ---------------------------

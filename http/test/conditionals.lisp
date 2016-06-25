@@ -9,3 +9,7 @@
   ;; Timezone MUST be GMT
   (is (= 0 (cl-avm-http-helpers::parse-http-timestamp "Fri, 25 Jan 2002 19:22:06 MSK"))))
 
+(test parse-etag-list
+  (is (eq nil (cl-avm-http-helpers::parse-etag-condition-header nil)))
+  (is (equal '("1" "2345") (cl-avm-http-helpers::parse-etag-condition-header "\"1\",  \"2345\"")))
+  (is (eq :ANY (cl-avm-http-helpers::parse-etag-condition-header "*"))))

@@ -23,6 +23,7 @@
            #:format-mime-type
            #:mimetype=
            #:parse-accept-header
+
            ;; Handle Accept header
            #:dispatch-mime-type
            #:dispatch-mime-type*
@@ -31,4 +32,8 @@
            #:when-modified
            #:when-modified*
            #:unless-modified
-           #:unless-modified*))
+           #:unless-modified*
+
+           ;; ETag-based conditionals
+           #:if-match
+           #:if-match*))
