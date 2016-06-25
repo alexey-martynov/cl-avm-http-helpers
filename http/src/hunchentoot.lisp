@@ -10,4 +10,4 @@
                 status)
 
 #+hunchentoot (defmethod http-is-succeeded (response (implementation (eql :hunchentoot)))
-                (not (and (typep response 'integer) (>= response 300))))
+                (not (and (integerp response) (>= response 300))))
