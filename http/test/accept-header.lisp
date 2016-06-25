@@ -1,11 +1,11 @@
-(in-package :cl-avm-http-helpers-tests)
+(in-package #:cl-avm-http-helpers-tests)
 
-(def-suite accept-header)
+(def-suite accept-header :in http-helpers)
 
 (in-suite accept-header)
 
 (defun select-mime-type (header)
-  (cl-avm-http-helpers::dispatch-mime-type** header
+  (cl-avm-http-helpers::dispatch-mime-type** :test header
     ("text/plain"
      "text/plain")
     ("text/jpeg"
@@ -18,7 +18,7 @@
      nil)))
 
 (defun select-mime-type* (header)
-  (cl-avm-http-helpers::dispatch-mime-type** header
+  (cl-avm-http-helpers::dispatch-mime-type** :test header
     ("text/plain"
      "text/plain")
     ("text/html;level=2"

@@ -21,5 +21,6 @@
     :components ((:module "test"
                           :pathname "http/test"
                           :components ((:file "runner")
+                                       (:file "fake-server")
                                        (:file "accept-header" :depends-on ("runner"))
                                        (:file "conditionals" :depends-on ("runner"))))))

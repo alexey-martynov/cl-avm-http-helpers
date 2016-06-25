@@ -1,6 +1,6 @@
 (in-package :cl-avm-http-helpers-tests)
 
-(def-suite conditionals)
+(def-suite conditionals :in http-helpers)
 
 (in-suite conditionals)
 

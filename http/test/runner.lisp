@@ -5,6 +5,7 @@
 
 (in-package :cl-avm-http-helpers-tests)
 
+(def-suite http-helpers)
+
 (defmethod asdf:perform ((op asdf:test-op) (c (eql (asdf:find-system ':cl-avm-http-helpers-tests))))
-  (run! 'accept-header)
-  (run! 'conditionals))
+  (run! 'http-helpers))
