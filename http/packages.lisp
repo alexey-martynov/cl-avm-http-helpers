@@ -1,8 +1,11 @@
 (defpackage :cl-avm-http-helpers.http
   (:use :cl)
   (:export #:+http-not-modified+
+           #:+http-not-found+
+           #:+http-not-acceptable+
            #:+http-precondition-failed+
-           #:+http-not-acceptable+))
+           #:+http-unprocessable-entity+
+           #:+http-precondition-required+))
 
 (defpackage :cl-avm-http-helpers.server
   (:use :cl)
