@@ -38,7 +38,7 @@ list of strings or list of single :ANY keyword"
               ;; Compare and invoke
               ;; FIXME: remove FORMAT here
               ;; FIXME: :ANY must be a value not part of list
-              (if (or (eq :ANY ,etag-header) (member (format nil "\"~A\"" ,object-etag)
+              (if (or (eq :ANY ,etag-header) (member (format nil "~A" ,object-etag)
                                                      ,etag-header
                                                      ;; FIXME: Properly split quotes
                                                      :test #'(lambda (etag item)
