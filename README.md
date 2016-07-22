@@ -146,6 +146,11 @@ opposite condition. The cases are processed in the following ways:
 5. `If-None-Match` is missing but `etag-value` exists. The handler body is
    evaluated as usual.
 
+To simplify setting `ETag` header function `set-etag` performs quoting
+and prefixing. If `WEAK` parameter is non-`NIL` value is perfixed with
+"W/" to designate weak e-tag. Server implementation is selected via
+`IMPLEMENTATION` parameter.
+
 Closure Template Publishing
 ---------------------------
 

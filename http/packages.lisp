@@ -35,6 +35,7 @@
            #:unless-modified*
 
            ;; ETag-based conditionals
+           #:set-etag
            #:when-matched
            #:when-matched*
            #:unless-matched

@@ -1,5 +1,5 @@
 (in-package #:cl-avm-http-helpers)
-(declaim (optimize (debug 3)))
+
 (defun parse-etag-condition-header (header)
   "Parse list of ETags for If-Match, If-None-Match headers and return
 list of strings or list of single :ANY keyword"
@@ -95,3 +95,9 @@ list of strings or list of single :ANY keyword"
 (defmacro unless-matched ((etag) &body body)
   `(unless-matched* (,etag (detect-http-implementation))
      ,@body))
+
+(defun set-etag (etag &key (weak nil) (implementation (detect-http-implementation)))
+  "Set 'ETag' HTTP header to value ETAG with proper quoting. If WEAK is
+non-NIL ETag is weak and prefixed with 'W/'. IMPLEMENTATION is used to
+select the way to communicate with server implementation."
+  (setf (http-header :ETAG implementation) (format nil "~:[~;W/~]\"~A\"" weak etag)))
