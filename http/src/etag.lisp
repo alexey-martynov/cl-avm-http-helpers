@@ -1,10 +1,11 @@
 (in-package #:cl-avm-http-helpers)
-
+(declaim (optimize (debug 3)))
 (defun parse-etag-condition-header (header)
   "Parse list of ETags for If-Match, If-None-Match headers and return
 list of strings or list of single :ANY keyword"
   (when header
-    (let ((str (trim header)))
+    (let ((str (trim header))
+          (len (length header)))
       (if (string= "*" str)
           :ANY
           (let (result
@@ -18,7 +19,9 @@ list of strings or list of single :ANY keyword"
                                   (setf result (list value)))
                               (setf value nil))
                              ((char= #\" c)
-                              (setf value (make-array 10 :fill-pointer 0 :adjustable t :element-type 'character)))
+                              ;; The single ETag is no longer then entire header so use its length
+                              ;; The overall string overhead doesn't matter
+                              (setf value (make-array len :fill-pointer 0 :adjustable t :element-type 'character)))
                              (value
                               (vector-push c value)))
                            #\Space)

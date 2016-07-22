@@ -12,4 +12,5 @@
 (test parse-etag-list
   (is (eq nil (cl-avm-http-helpers::parse-etag-condition-header nil)))
   (is (equal '("1" "2345") (cl-avm-http-helpers::parse-etag-condition-header "\"1\",  \"2345\"")))
+  (is (equal '("DB79792F17820B7F137FDFB95E0BBC3") (cl-avm-http-helpers::parse-etag-condition-header "\"DB79792F17820B7F137FDFB95E0BBC3\"")))
   (is (eq :ANY (cl-avm-http-helpers::parse-etag-condition-header "*"))))
