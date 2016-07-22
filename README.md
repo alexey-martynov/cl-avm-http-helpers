@@ -101,10 +101,10 @@ For example:
       (generate-contents path))
 
 Additional facility provided for ETag based conditions. The macros
-`if-match`/`if-match*` handles conditions in `If-Match` header
+`when-matched`/`when-matched*` handles conditions in `If-Match` header
 accodirding to section 14.24 of RFC 2616. For example:
 
-    (if-match (etag-value)
+    (when-match (etag-value)
       (generate-response))
       
 The folliowing cases are possible:
@@ -124,12 +124,12 @@ The folliowing cases are possible:
 5. `If-Match` is missing but `etag-value` exists. The handler body is
    not evaluated and "428 Precondition Required" is returned.
 
-To distinguish cases 1 and 2 inside the handler body additional
+To distinguish case 1 and 2 inside the handler body additional
 lexical variable is bound during body evaluation. By default it is
 named `etag-matched` but other name can be specified as a second
 parameter after ETag value.
 
-Another pair of macros `if-none-match`/`if-none-match*` processes
+Another pair of macros `unless-matched`/`unless-matched*` processes
 opposite condition. The cases are processed in the following ways:
 
 1. `If-None-Match` and `etag-value` are missing, the handler is

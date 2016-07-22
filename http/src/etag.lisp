@@ -25,7 +25,7 @@ list of strings or list of single :ANY keyword"
                  str)
             (nreverse result))))))
 
-(defmacro if-match* ((etag implementation &optional (etag-matched (intern "ETAG-MATCHED" *package*))) &body body)
+(defmacro when-matched* ((etag implementation &optional (etag-matched (intern "ETAG-MATCHED" *package*))) &body body)
   (with-gensyms (handler etag-header)
     (once-only ((object-etag etag)
                 (impl implementation))
@@ -56,11 +56,11 @@ list of strings or list of single :ANY keyword"
               ;; ETag nor If-Match header exists so just invoke
               (,handler nil))))))))
 
-(defmacro if-match ((etag &optional (etag-matched (intern "ETAG-MATCHED" *package*))) &body body)
-  `(if-match* (,etag (detect-http-implementation) ,etag-matched)
+(defmacro when-matched ((etag &optional (etag-matched (intern "ETAG-MATCHED" *package*))) &body body)
+  `(when-matched* (,etag (detect-http-implementation) ,etag-matched)
      ,@body))
 
-(defmacro if-none-match* ((etag implementation) &body body)
+(defmacro unless-matched* ((etag implementation) &body body)
   (with-gensyms (handler etag-header)
     (once-only ((object-etag etag)
                 (impl implementation))
@@ -89,6 +89,6 @@ list of strings or list of single :ANY keyword"
               ;; ETag nor If-Match header exists so just invoke
               (,handler))))))))
 
-(defmacro if-none-match ((etag) &body body)
-  `(if-none-match* (,etag (detect-http-implementation))
+(defmacro unless-matched ((etag) &body body)
+  `(unless-matched* (,etag (detect-http-implementation))
      ,@body))
