@@ -8,7 +8,6 @@
 (defpackage :cl-avm-http-helpers
   (:use :cl
         :alexandria
-        :cl-avm-http-helpers.http
         :cl-avm-http-helpers.server)
   (:export #:+http-no-content+
            #:+http-not-modified+
