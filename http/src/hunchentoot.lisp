@@ -9,5 +9,8 @@
 #+hunchentoot (defmethod http-status (status (implementation (eql :hunchentoot)))
                 status)
 
+#+hunchentoot (defmethod http-request-method ((implementation (eql :hunchentoot)))
+                (hunchentoot:request-method*))
+
 #+hunchentoot (defmethod http-is-succeeded (response (implementation (eql :hunchentoot)))
                 (not (and (integerp response) (>= response 300))))

@@ -2,6 +2,7 @@
   (:use :cl)
   (:export #:http-header
            #:http-status
+           #:http-request-method
            #:http-is-succeeded))
 
 (defpackage :cl-avm-http-helpers
@@ -36,4 +37,6 @@
 
            ;; ETag-based conditionals
            #:if-match
-           #:if-match*))
+           #:if-match*
+           #:if-none-match
+           #:if-none-match*))

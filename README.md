@@ -121,13 +121,30 @@ The folliowing cases are possible:
    `If-Match` value "*" which is stated in RFC. In this case "412
    Precondition Failed" is returned. The handler body is not
    evaluated.
-5. `If-Match` is missing but `etga-value` exists. The handler body is
+5. `If-Match` is missing but `etag-value` exists. The handler body is
    not evaluated and "428 Precondition Required" is returned.
 
 To distinguish cases 1 and 2 inside the handler body additional
 lexical variable is bound during body evaluation. By default it is
 named `etag-matched` but other name can be specified as a second
 parameter after ETag value.
+
+Another pair of macros `if-none-match`/`if-none-match*` processes
+opposite condition. The cases are processed in the following ways:
+
+1. `If-None-Match` and `etag-value` are missing, the handler is
+   evaluated.
+2. `If-None-Match` and `etag-value` are exists and match, the handler is
+   not evaluated and "412 Precondition Failed" is returned in all
+   cases except for GET requests. For GET requests "304 Not Modified"
+   is returned (RFC, section 14.26).
+3. `If-None-Match` and `etag-value` are exists and but don't match, the
+   handler is evaluated.
+4. `If-None-Match` exists but `etag-value` is missing. This case is
+   handled as "Resource Not Found" and "404 Not Found" returned. The
+   handler body is not evaluated.
+5. `If-None-Match` is missing but `etag-value` exists. The handler body is
+   evaluated as usual.
 
 Closure Template Publishing
 ---------------------------
