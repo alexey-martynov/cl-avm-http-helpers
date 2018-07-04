@@ -7,5 +7,5 @@
 
 (def-suite http-helpers)
 
-(defmethod asdf:perform ((op asdf:test-op) (c (eql (asdf:find-system ':cl-avm-http-helpers-tests))))
+(defmethod asdf:perform ((op asdf:test-op) (c (eql (asdf:find-system ':cl-avm-http-helpers/tests))))
   (run! 'http-helpers))
