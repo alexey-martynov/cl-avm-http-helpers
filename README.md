@@ -151,6 +151,19 @@ and prefixing. If `WEAK` parameter is non-`NIL` value is perfixed with
 "W/" to designate weak e-tag. Server implementation is selected via
 `IMPLEMENTATION` parameter.
 
+Hunchentoot Redirector
+----------------------
+
+`cl-avm-http-helpers.hunchentoot:redirect-acceptor` is a special
+acceptor class to perform, for example, redirection from HTTP URLs to
+HTTPS. The host and URI part are preserved during redirection. This
+acceptor has the followinf additional parameters to perform its task:
+
+* `target-port` - a port number to redirect to in range
+  1..65535. Required.
+* `target-protocol` - a protocol to redirect to. Supported values are
+  `:http` and `:https` with `:https` default.
+
 Closure Template Publishing
 ---------------------------
 

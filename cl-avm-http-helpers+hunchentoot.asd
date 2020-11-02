@@ -3,5 +3,6 @@
   :author "Alexey Martynov"
   :depends-on (#:hunchentoot #:cl-avm-http-helpers)
   :components ((:module "http"
-                        :components ((:module "src"
-                                              :components ((:file "hunchentoot")))))))
+                :components ((:module "src"
+                              :components ((:file "hunchentoot")
+                                           (:file "hunchentoot-redirect-acceptor")))))))

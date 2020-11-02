@@ -5,6 +5,11 @@
            #:http-request-method
            #:http-is-succeeded))
 
+(defpackage :cl-avm-http-helpers.hunchentoot
+  (:use :cl
+        :hunchentoot)
+  (:export #:redirect-acceptor))
+
 (defpackage :cl-avm-http-helpers
   (:use :cl
         :alexandria
