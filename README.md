@@ -4,18 +4,18 @@ cl-avm-http-helpers
 This project contains different utilities to handle some tricky aspects
 of the HTTP protocol.
 
-Also it contains helper to publish templates compiled via 
+Also it contains helper to publish templates compiled via
 [cl-closure-template](https://github.com/archimag/cl-closure-template).
 
 > IMPORTANT NOTE:
 > Some library parts are accidentally bound to the [Hunchentoot](http://weitz.de/hunchentoot/).
-> This should be fixed via providing some generic mechanism or Hunchentoot 
+> This should be fixed via providing some generic mechanism or Hunchentoot
 > availability detection.
 
 HTTP Headers
 ------------
 
-At this time library provides handling of the `Accept` header and 
+At this time library provides handling of the `Accept` header and
 conditional execution with `Last-Modified`/`If-Modified-Since`/`If-Unmodified-Since`.
 
 ### `Accept` Header
@@ -37,11 +37,11 @@ All MIME types from cases are got q-value from `Accept` header. The type
 with the biggest q-value will be selected. Q-values to types assigned from
 the most specific media ranges from teh `Accept` header.
 
-If any two media has got the same q-value, first one will be selected. 
-For example, if "text/html" and "text/plain" have q=1.0, in the sample above 
+If any two media has got the same q-value, first one will be selected.
+For example, if "text/html" and "text/plain" have q=1.0, in the sample above
 "text/html" will be selected.
 
-Media parameters are supported in the header and in the cases are supported. 
+Media parameters are supported in the header and in the cases are supported.
 If the header doesn't contain media range with parameters from case label _but_
 media range _without_ parameters matches, media range from case label will get
 q-value from media range with parameters. For example:
@@ -69,18 +69,18 @@ implementation identifier.
 
 If it is possible for clients to receive different MIME types with the (for example, image
 as PNG to display initial picture or image as BASE64 for Ajax/Web 2.0 application to update
-it), the header `Vary` *must* be set to at least `Accept`. This informs all caches that 
+it), the header `Vary` *must* be set to at least `Accept`. This informs all caches that
 content depends on the supplied `Accept` header. The macros perform this task automatically.
-But if handling code requires additional data in the `Vary` header it should set it manually 
+But if handling code requires additional data in the `Vary` header it should set it manually
 with `Accept` inside.
 
 ### Conditional Processing
 
-HTTP 1.1 offers mechanism to control caching. In the simplest version it consists of 
-`Last-Modified` response header and `If-Modified-Since`/`If-Unmodified-Since` request 
+HTTP 1.1 offers mechanism to control caching. In the simplest version it consists of
+`Last-Modified` response header and `If-Modified-Since`/`If-Unmodified-Since` request
 headers.
 
-The library provides 2 pairs of macros: `when-modified`/`when-modified*` and 
+The library provides 2 pairs of macros: `when-modified`/`when-modified*` and
 `unless-modified`/`unless-modified*` based on timestamps.
 
 The macros `when-modified*` and `unless-modified*` are generic ones. They receive
@@ -88,7 +88,7 @@ resource time stamp and implementation identifier.
 
 The macros `when-modified` and `unless-modified` are designed for regular usage. They
 receive resource time stamp as Common Lisp universal time. The body of the macro invocation
-is executed if comparison of the time stamp to the header's value is succeeded. The 
+is executed if comparison of the time stamp to the header's value is succeeded. The
 implementation is auto-detected. The first one is from `*default-http-implementation*` variable.
 If it is NIL the `*features*` is checked for Hunchentoot.
 
@@ -106,7 +106,7 @@ accodirding to section 14.24 of RFC 2616. For example:
 
     (when-match (etag-value)
       (generate-response))
-      
+
 The folliowing cases are possible:
 
 1. `If-Match` and `etag-value` are missing, the handler is
@@ -151,6 +151,52 @@ and prefixing. If `WEAK` parameter is non-`NIL` value is perfixed with
 "W/" to designate weak e-tag. Server implementation is selected via
 `IMPLEMENTATION` parameter.
 
+PATCH Method Handling
+---------------------
+
+The PATCH method is designed to apply list of "patches" to a
+resource. The macro `handle-patch-actions` created to simplify
+creation of such request handlers. It has a form
+
+    (handle-patch-actions (request &optional object)
+      ("action-1-name" lambda-1)
+      ("action-2-name" lambda-2)
+      ...)
+
+The overall design is created to simplify handling of JSON array of
+actions. So the following rules apply:
+
+* `request` is a list of actions.
+* Each action is an alist which contains string value with key
+  `:action`. This value identifies handler.
+* The rest of action's alist is a set of parameters for handler.
+* `lambda-x` is a function suitable to be passed to `funcall`.
+* It should be callable as `(lambda-x object action)`. `object` is the
+  data to patch, `action` is the action's alist.
+* It should return patched object. It is up to implementor whether new
+  object returned or updated parameter.
+* Actions invoked one by one in order in `request`.
+* The first action takes `object` value as object parameter, all other
+  actions will take result of the previous action.
+* Overall result is the result of the last action.
+
+Please note that the order of parameter evaluation is not guaranteed
+to be "from left to right".
+
+The following conditions raised:
+
+* `invalid-action-specifier` when missing `:action` key or action name
+  is not string.
+
+* `action-handler-not-found` when unknown action received.
+
+The restarts `ignore-action` and `use-value` are provided in case of
+conditions above. The restart `ignore-action` continues processing
+`request` ignoring erroneous one. The object parameter for the next
+action will be taken form result of the previous one. `use-value`
+restart gives ability to replace call to incorrect action with
+specified value.
+
 Hunchentoot Redirector
 ----------------------
 
@@ -167,7 +213,7 @@ acceptor has the followinf additional parameters to perform its task:
 Closure Template Publishing
 ---------------------------
 
-Templates are published via [RESTAS](https://github.com/archimag/restas) after 
+Templates are published via [RESTAS](https://github.com/archimag/restas) after
 compilation to the [RequireJS](http://requirejs.org/) module format.
 
 > IMPORTANT NOTE:

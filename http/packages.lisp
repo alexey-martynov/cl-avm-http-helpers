@@ -44,4 +44,12 @@
            #:when-matched
            #:when-matched*
            #:unless-matched
-           #:unless-matched*))
+           #:unless-matched*
+
+           ;; PATCH method handling
+           #:handle-patch-actions
+           #:invalid-action-specifier
+           #:action-handler-not-found
+           #:specifier
+           #:action-name
+           #:hanlders))
