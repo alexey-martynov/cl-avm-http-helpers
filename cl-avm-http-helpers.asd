@@ -1,6 +1,8 @@
 (defsystem cl-avm-http-helpers
   :name "cl-avm-http-helpers"
+  :description "Various HTTP helpers to simplify server-side development."
   :author "Alexey Martynov"
+  :license "MIT"
   :depends-on (#:alexandria)
   :in-order-to ((test-op (test-op cl-avm-http-helpers/tests)))
   :components ((:module "http"
@@ -18,7 +20,9 @@
 
 (defsystem cl-avm-http-helpers/tests
     :name "cl-avm-http-helpers/tests"
+    :description "Various HTTP helpers to simplify server-side development. Test suite."
     :author "Alexey Martynov"
+    :license "MIT"
     :depends-on (#:cl-avm-http-helpers #:fiveam)
     :components ((:module "test"
                           :pathname "http/test"
