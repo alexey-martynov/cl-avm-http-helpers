@@ -14,14 +14,23 @@
   (:use :cl
         :alexandria
         :cl-avm-http-helpers.server)
-  (:export #:+http-no-content+
+  (:export #:+http-created+
+           #:+http-no-content+
+           #:+http-partial-content+
            #:+http-not-modified+
+           #:+http-bad-request+
+           #:+http-unauthorized+
+           #:+http-forbidden+
            #:+http-not-found+
+           #:+http-method-not-allowed+
            #:+http-not-acceptable+
+           #:+http-conflict+
            #:+http-precondition-failed+
            #:+http-unprocessable-entity+
            #:+http-precondition-required+
            #:+http-internal-server-error+
+           #:+http-service-unavailable+
+           #:+http-gateway-timeout+
 
            #:*default-http-implementation*
            #:parse-mime-type
