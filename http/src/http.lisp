@@ -5,6 +5,8 @@
 (defparameter +http-partial-content+       206)
 
 (defparameter +http-not-modified+          304)
+;; Redirect preserving method
+(defparameter +http-temporary-redirect+    307)
 
 (defparameter +http-bad-request+           400)
 (defparameter +http-unauthorized+          401)

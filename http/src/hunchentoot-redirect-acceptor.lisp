@@ -14,4 +14,5 @@
 (defmethod acceptor-dispatch-request ((redirector redirect-acceptor) request)
   (redirect (request-uri request)
             :port (slot-value redirector 'target-port)
-            :protocol (slot-value redirector 'target-protocol)))
+            :protocol (slot-value redirector 'target-protocol)
+            :code +http-temporary-redirect+))
