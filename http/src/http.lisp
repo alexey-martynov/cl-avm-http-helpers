@@ -1,5 +1,6 @@
 (in-package :cl-avm-http-helpers)
 
+(defparameter +http-ok+                    200)
 (defparameter +http-created+               201)
 (defparameter +http-no-content+            204)
 (defparameter +http-partial-content+       206)

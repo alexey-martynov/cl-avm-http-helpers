@@ -14,7 +14,8 @@
   (:use :cl
         :alexandria
         :cl-avm-http-helpers.server)
-  (:export #:+http-created+
+  (:export #:+http-ok+
+           #:+http-created+
            #:+http-no-content+
            #:+http-partial-content+
            #:+http-not-modified+
